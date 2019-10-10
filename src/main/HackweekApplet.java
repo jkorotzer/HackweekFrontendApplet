@@ -3,15 +3,20 @@ package main;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Image;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import javax.imageio.ImageIO;
+import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -53,8 +58,8 @@ public class HackweekApplet {
     lowerPanel.redrawNameAndFace(name);
   }
 
-  public void notificationReceived() {
-    upperPanel.setNotificationReceived();
+  public void notificationReceived(String filePath) {
+    upperPanel.setNotificationReceived(filePath);
   }
 
   public class UpperHackweekPanel extends JPanel {
@@ -66,6 +71,8 @@ public class HackweekApplet {
     private BufferedImage currentUserNotificationIcon;
     String currentUserIconNotificationPath = "src/main/resources/samir-notification.png"; // Change this too for new user
     JLabel userIconLabel;
+    MouseListener ml;
+    String fileToOpen = "src/main/HackweekApplet.java";
 
     public UpperHackweekPanel(HackweekApplet applet) {
       this.applet = applet;
@@ -109,12 +116,28 @@ public class HackweekApplet {
 
       setOpaque(true);
       setBackground(Color.WHITE);
-      //setNotificationReceived();
+
+      ml = new MouseAdapter() {
+        public void mouseClicked(java.awt.event.MouseEvent evt) {
+          userIconLabel.setIcon(new ImageIcon(currentUserIcon.getScaledInstance(30, 30, Image.SCALE_FAST)));
+          File file = new File(fileToOpen);
+          try {
+            Desktop.getDesktop().open(file);
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+          userIconLabel.removeMouseListener(ml);
+        }
+      };
+
+      setNotificationReceived(fileToOpen);
+      setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY));
     }
 
-    public void setNotificationReceived() {
+    public void setNotificationReceived(String filePath) {
       userIconLabel.setIcon(new ImageIcon(currentUserNotificationIcon.getScaledInstance(30, 30, Image.SCALE_FAST)));
-      // add action handler to open intelliJ to line and change image back to no notification icon on click
+      fileToOpen = filePath;
+      userIconLabel.addMouseListener(ml);
     }
 
     public class ComboBoxRenderer extends JLabel implements ListCellRenderer {

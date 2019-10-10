@@ -37,11 +37,11 @@ public class CommentListener extends AbstractHandler {
 
     if (request.getHeader("Host").contains("127.0.0.1")) {
       // If local request, forward to remote Applet
-      new CommentClient("other-ip", 8080, "").addComment(addCommentReq);
+      new CommentClient("172.27.69.30", 8080, "").addComment(addCommentReq);
     } else {
       // If remote request, forward to local IntelliJ
       new CommentClient("127.0.0.1", 63343, "api.addComment").addComment(addCommentReq);
-      applet.notificationReceived();
+      applet.notificationReceived(addCommentReq.filepath);
     }
 
     // Declare response status code
