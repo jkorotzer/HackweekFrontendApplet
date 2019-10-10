@@ -295,7 +295,13 @@ public class HackweekApplet {
 
   public static void main(String[] args) {
     HackweekApplet applet = new HackweekApplet();
-    Server server = new Server(8080);
+    Server server;
+    if(args[0].equals("8080")) {
+      server = new Server(8080);
+    } else {
+      server = new Server(8081);
+    }
+
     server.setHandler(new CommentListener(applet));
     try {
       server.start();
