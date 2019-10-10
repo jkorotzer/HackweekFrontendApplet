@@ -35,11 +35,19 @@ public class CommentListener extends AbstractHandler {
     Gson gson = new Gson();
     AddCommentRequest addCommentReq = gson.fromJson(raw, AddCommentRequest.class);
 
-    if (request.getHeader("Host").contains("127.0.0.1")) {
-      // If local request, forward to remote Applet
-      new CommentClient("172.27.69.30", 8080, "").addComment(addCommentReq);
+    if (addCommentReq.sourceOfComment.equalsIgnoreCase("intellij")) {
+      // If sender of this request is intellij, forward to other applet
+
+      // Get the port of this applet's server
+      int localPort = request.getLocalPort();
+      // If request coming from applet on 8080 then it should send it to applet on 8081 and vice versa
+      int remotePort = localPort == 8080 ? 8081 : 8080;
+
+      // set the new sourceOfComment as the applet before forwarding it to the other applet
+      addCommentReq.sourceOfComment = "applet";
+      new CommentClient("127.0.0.1", remotePort, "").addComment(addCommentReq);
     } else {
-      // If remote request, forward to local IntelliJ
+      // If sender is the applet (emulating remote) then forward to local intellij
       new CommentClient("127.0.0.1", 63343, "api.addComment").addComment(addCommentReq);
       applet.notificationReceived(addCommentReq.filepath);
     }

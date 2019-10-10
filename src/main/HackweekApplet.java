@@ -34,11 +34,13 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 public class HackweekApplet {
   JFrame frame = new JFrame("");
   LowerHackweekPanel lowerPanel = new LowerHackweekPanel();
-  UpperHackweekPanel upperPanel = new UpperHackweekPanel(this);
+  UpperHackweekPanel upperPanel;
   JPanel outerPanel;
+  String mainUser;
 
-
-  public HackweekApplet() {
+  public HackweekApplet(String mainUser) {
+    this.mainUser = mainUser;
+    upperPanel = new UpperHackweekPanel(this);
     FlowLayout layout = new FlowLayout();
     frame.setLocationRelativeTo(null);
     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -64,18 +66,31 @@ public class HackweekApplet {
 
   public class UpperHackweekPanel extends JPanel {
     private HackweekApplet applet;
-    String[] NAMES = { "Tami", "Ryan", "Jared", "Jack"}; // add samir and remove current user if changing users
-    JComboBox comboBox = new JComboBox(NAMES);
+    String[] NAMES; // add samir and remove current user if changing users
+    JComboBox comboBox;
     private BufferedImage currentUserIcon;
-    String currentUserIconPath = "src/main/resources/samir.png"; // Change this to use a different user
+    String currentUserIconPath; // Change this to use a different user
     private BufferedImage currentUserNotificationIcon;
-    String currentUserIconNotificationPath = "src/main/resources/samir-notification.png"; // Change this too for new user
+    String currentUserIconNotificationPath; // Change this too for new user
     JLabel userIconLabel;
     MouseListener ml;
     String fileToOpen = "src/main/HackweekApplet.java";
 
     public UpperHackweekPanel(HackweekApplet applet) {
       this.applet = applet;
+
+      if(applet.mainUser.equals("Samir")) {
+        NAMES = new String[]{ "Ryan", "Tami", "Jared", "Jack"};
+        currentUserIconPath = "src/main/resources/samir.png";
+        currentUserIconNotificationPath = "src/main/resources/samir-notification.png";
+      } else {
+        NAMES = new String[]{ "Samir", "Tami", "Jared", "Jack"};
+        currentUserIconPath = "src/main/resources/ryan.png";
+        currentUserIconNotificationPath = "src/main/resources/ryan-notification.png";
+      }
+
+       comboBox = new JComboBox(NAMES);
+
       try {
         File file = new File(currentUserIconPath);
         if(!file.exists()) {
@@ -130,7 +145,7 @@ public class HackweekApplet {
           userIconLabel.removeMouseListener(ml);
         }
       };
-
+      //setNotificationReceived("");
       setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY));
     }
 
@@ -294,12 +309,14 @@ public class HackweekApplet {
   }
 
   public static void main(String[] args) {
-    HackweekApplet applet = new HackweekApplet();
+    HackweekApplet applet;
     Server server;
-    if(args[0].equals("8080")) {
+    if(args.length == 0 || args[0].equals("8080")) {
       server = new Server(8080);
+      applet = new HackweekApplet("Samir");
     } else {
       server = new Server(8081);
+      applet = new HackweekApplet("Ryan");
     }
 
     server.setHandler(new CommentListener(applet));
