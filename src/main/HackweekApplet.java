@@ -104,6 +104,7 @@ public class HackweekApplet {
         }
       }
       comboBox.setRenderer(new ComboBoxRenderer());
+      comboBox.setEditable(true);
       comboBox.addActionListener (e -> {
         String selectedValue = comboBox.getSelectedItem().toString();
         applet.redrawNameAndFace(selectedValue);
@@ -130,7 +131,6 @@ public class HackweekApplet {
         }
       };
 
-      setNotificationReceived(fileToOpen);
       setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY));
     }
 
