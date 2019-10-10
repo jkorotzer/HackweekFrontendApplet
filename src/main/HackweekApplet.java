@@ -53,12 +53,18 @@ public class HackweekApplet {
     lowerPanel.redrawNameAndFace(name);
   }
 
+  public void notificationReceived() {
+    upperPanel.setNotificationReceived();
+  }
+
   public class UpperHackweekPanel extends JPanel {
     private HackweekApplet applet;
-    String[] NAMES = {"Samir", "Tami", "Ryan", "Jared", "Jack"};
+    String[] NAMES = { "Tami", "Ryan", "Jared", "Jack"}; // add samir and remove current user if changing users
     JComboBox comboBox = new JComboBox(NAMES);
     private BufferedImage currentUserIcon;
     String currentUserIconPath = "src/main/resources/samir.png"; // Change this to use a different user
+    private BufferedImage currentUserNotificationIcon;
+    String currentUserIconNotificationPath = "src/main/resources/samir-notification.png"; // Change this too for new user
     JLabel userIconLabel;
 
     public UpperHackweekPanel(HackweekApplet applet) {
@@ -69,6 +75,16 @@ public class HackweekApplet {
           System.err.println("my file is not there, I was looking at " + file.getAbsolutePath());
         }
         currentUserIcon = ImageIO.read(file);
+      } catch (IOException ex) {
+        System.out.println("No appIcon");
+      }
+
+      try {
+        File file = new File(currentUserIconNotificationPath);
+        if(!file.exists()) {
+          System.err.println("my file is not there, I was looking at " + file.getAbsolutePath());
+        }
+        currentUserNotificationIcon = ImageIO.read(file);
       } catch (IOException ex) {
         System.out.println("No appIcon");
       }
@@ -85,6 +101,7 @@ public class HackweekApplet {
         String selectedValue = comboBox.getSelectedItem().toString();
         applet.redrawNameAndFace(selectedValue);
       });
+      comboBox.setSelectedIndex(0);
       add(comboBox);
 
       userIconLabel = new JLabel(new ImageIcon(currentUserIcon.getScaledInstance(30, 30, Image.SCALE_FAST)));
@@ -92,6 +109,12 @@ public class HackweekApplet {
 
       setOpaque(true);
       setBackground(Color.WHITE);
+      //setNotificationReceived();
+    }
+
+    public void setNotificationReceived() {
+      userIconLabel.setIcon(new ImageIcon(currentUserNotificationIcon.getScaledInstance(30, 30, Image.SCALE_FAST)));
+      // add action handler to open intelliJ to line and change image back to no notification icon on click
     }
 
     public class ComboBoxRenderer extends JLabel implements ListCellRenderer {
@@ -182,7 +205,7 @@ public class HackweekApplet {
       usernameLabel = new JLabel("Jared");
       usernameLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 16));
       usernameLabel.setForeground(Color.BLACK);
-      usernameLabel.setBorder(new MatteBorder(0, 0, 1, 0, Color.BLACK));
+      //usernameLabel.setBorder(new MatteBorder(0, 0, 1, 0, Color.BLACK));
       usernameLabel.setMinimumSize(new Dimension(75, 20));
       usernameLabel.setPreferredSize(new Dimension(75, 20));
       usernameLabel.setMaximumSize(new Dimension(75, 20));
@@ -248,9 +271,9 @@ public class HackweekApplet {
   }
 
   public static void main(String[] args) {
-    new HackweekApplet();
+    HackweekApplet applet = new HackweekApplet();
     Server server = new Server(8080);
-    server.setHandler(new CommentListener());
+    server.setHandler(new CommentListener(applet));
     try {
       server.start();
       server.join();

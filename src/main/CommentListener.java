@@ -11,6 +11,12 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 public class CommentListener extends AbstractHandler {
+  private HackweekApplet applet;
+
+  public CommentListener(HackweekApplet applet) {
+    this.applet = applet;
+  }
+
   @Override
   public void handle(String target, Request baseRequest, HttpServletRequest request,
       HttpServletResponse response) throws IOException, ServletException {
@@ -35,6 +41,7 @@ public class CommentListener extends AbstractHandler {
     } else {
       // If remote request, forward to local IntelliJ
       new CommentClient("127.0.0.1", 63343, "api.addComment").addComment(addCommentReq);
+      applet.notificationReceived();
     }
 
     // Declare response status code
