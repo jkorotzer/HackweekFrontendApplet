@@ -33,13 +33,17 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 
 public class HackweekApplet {
   JFrame frame = new JFrame("");
-  LowerHackweekPanel lowerPanel = new LowerHackweekPanel();
+  LowerHackweekPanel lowerPanel;
   UpperHackweekPanel upperPanel;
   JPanel outerPanel;
   String mainUser;
+  public boolean isDarkMode;
 
-  public HackweekApplet(String mainUser) {
+  public HackweekApplet(String mainUser, boolean isDarkMode) {
+    Color background = isDarkMode ? Color.BLACK : Color.WHITE;
     this.mainUser = mainUser;
+    this.isDarkMode = isDarkMode;
+    lowerPanel = new LowerHackweekPanel(this);
     upperPanel = new UpperHackweekPanel(this);
     FlowLayout layout = new FlowLayout();
     frame.setLocationRelativeTo(null);
@@ -52,7 +56,7 @@ public class HackweekApplet {
     outerPanel.add(lowerPanel, BorderLayout.CENTER);
     frame.add(outerPanel);
     frame.setVisible(true);
-    frame.getContentPane().setBackground(Color.WHITE);
+    frame.getContentPane().setBackground(background);
     frame.pack();
   }
 
@@ -78,6 +82,7 @@ public class HackweekApplet {
 
     public UpperHackweekPanel(HackweekApplet applet) {
       this.applet = applet;
+      Color backgroundColor = applet.isDarkMode ? Color.BLACK : Color.WHITE;
 
       if(applet.mainUser.equals("Samir")) {
         NAMES = new String[]{ "Ryan", "Tami", "Jared", "Jack"};
@@ -131,7 +136,7 @@ public class HackweekApplet {
       this.add(userIconLabel);
 
       setOpaque(true);
-      setBackground(Color.WHITE);
+      setBackground(backgroundColor);
 
       ml = new MouseAdapter() {
         public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -183,8 +188,8 @@ public class HackweekApplet {
     private BufferedImage userIcon;
     private BufferedImage phoneIcon;
     private BufferedImage messageIcon;
-    String messageIconPath = "src/main/resources/message_icon.png";
-    String phoneImagePath = "src/main/resources/phone-icon.png";
+    String messageIconPath;
+    String phoneImagePath;
     String imageFilePath = "src/main/resources/IntelliJ_IDEA_Logo.png";
     String userIconPath = "src/main/resources/jared.png";
     HashMap<String, String> namesToImagePaths = new HashMap<>();
@@ -192,8 +197,17 @@ public class HackweekApplet {
     JLabel userIconLabel;
     JLabel usernameLabel;
     JLabel appIconLabel;
+    HackweekApplet applet;
 
-    public LowerHackweekPanel() {
+    public LowerHackweekPanel(HackweekApplet app) {
+      applet = app;
+
+      messageIconPath = applet.isDarkMode ? "src/main/resources/message_dark_mode.png" :
+              "src/main/resources/message_icon.png";
+      phoneImagePath = applet.isDarkMode ? "src/main/resources/phone-icon-dark-mode.png" :
+              "src/main/resources/phone-icon.png";
+      Color background_color = applet.isDarkMode ? Color.BLACK : Color.WHITE;
+
       initializeNamesToImagesMap();
       initializeNamesToAppsMap();
 
@@ -242,7 +256,8 @@ public class HackweekApplet {
 
       usernameLabel = new JLabel("Jared");
       usernameLabel.setFont(new Font("Helvetica Neue", Font.PLAIN, 16));
-      usernameLabel.setForeground(Color.BLACK);
+      Color userNameColor = applet.isDarkMode ? Color.WHITE : Color.BLACK;
+      usernameLabel.setForeground(userNameColor);
       //usernameLabel.setBorder(new MatteBorder(0, 0, 1, 0, Color.BLACK));
       usernameLabel.setMinimumSize(new Dimension(75, 20));
       usernameLabel.setPreferredSize(new Dimension(75, 20));
@@ -260,7 +275,7 @@ public class HackweekApplet {
       //add(new JSeparator(SwingConstants.VERTICAL));
 
       setOpaque(true);
-      setBackground(Color.WHITE);
+      setBackground(background_color);
     }
 
     public void initializeNamesToImagesMap() {
@@ -311,13 +326,22 @@ public class HackweekApplet {
   public static void main(String[] args) {
     HackweekApplet applet;
     Server server;
+    String mainUser;
+    boolean isDarkMode = false;
+
     if(args.length == 0 || args[0].equals("8080")) {
       server = new Server(8080);
-      applet = new HackweekApplet("Samir");
+      mainUser = "Samir";
     } else {
       server = new Server(8081);
-      applet = new HackweekApplet("Ryan");
+      mainUser = "Ryan";
     }
+
+    if (args.length == 2 && args[1].equalsIgnoreCase("darkmode")) {
+      isDarkMode = true;
+    }
+
+    applet = new HackweekApplet(mainUser, isDarkMode);
 
     server.setHandler(new CommentListener(applet));
     try {
