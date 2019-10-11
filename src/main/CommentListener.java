@@ -48,7 +48,10 @@ public class CommentListener extends AbstractHandler {
       new CommentClient("127.0.0.1", remotePort, "").addComment(addCommentReq);
     } else {
       // If sender is the applet (emulating remote) then forward to local intellij
-      new CommentClient("127.0.0.1", 63343, "api.addComment").addComment(addCommentReq);
+
+      int destinationIntellijServerPort = addCommentReq.sourceIntellijServerPort == 63344 ? 63343 : 63344;
+
+      new CommentClient("127.0.0.1", destinationIntellijServerPort, "api.addComment").addComment(addCommentReq);
       applet.notificationReceived(addCommentReq.filepath);
     }
 
